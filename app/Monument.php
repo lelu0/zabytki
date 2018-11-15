@@ -18,7 +18,7 @@ class Monument extends Model
 
     public static function getAll($isConfirmed)
     {
-        return Monument::select(array('id', 'name', 'description'))->where(array('confirmed' => $isConfirmed))->paginate(10);
+        return Monument::select(array('id', 'name', 'short_description'))->where(array('confirmed' => $isConfirmed))->orderBy('id','desc')->paginate(10);
     }
 
     public function comments()
@@ -36,6 +36,6 @@ class Monument extends Model
     }
     public function category()
     {
-        return $this->hasOne('App\Category');
+        return $this->belongsTo('App\Category');
     }
 }

@@ -16,9 +16,11 @@
 
                     @foreach ($monuments as $monument)
                         <h3><a href="/monuments/{{$monument->id}}">{{$monument->name}}</a></h3>
-                        <p>{{$monument->location['city']}}, {{$monument->location['country']}}</p>
-                        <p>{{$monument->description}}</p>
+                        <p>{{$monument->location['city']}} </p>
+                        <p>{{$monument->location['country']}}</p>
+                        <p>{{$monument->short_description}}</p>
                     @endforeach
+                    {{$monuments->links()}}
                 </div>
             </div>
         </div>

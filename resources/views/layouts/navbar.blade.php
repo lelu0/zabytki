@@ -24,7 +24,7 @@
                   <a class="nav-link" href="/monuments">Wyszukiwanie zabytków</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/monuments/add">Dodaj zabytek</a>
+                    <a class="nav-link" href="/monuments/create">Dodaj zabytek</a>
                 </li>
             </ul>
 
