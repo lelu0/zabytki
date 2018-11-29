@@ -30,6 +30,9 @@
                     
                     <h3>Opis</h3>
                     <p>{{$monument->description}}</p>
+                    <hr>
+                    <a href="/home/sendmsg/{{$monument->user->id}}">Wyślij wiadomość do autora wpisu</a><br>
+                    <a href="/home/moderate/{{$monument->id}}">Zgłoś do moderacji</a>
                 </div>
             </div>
             @if(!$monument->sources->isEmpty())

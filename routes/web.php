@@ -18,6 +18,14 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/dashboard', 'HomeController@dashboard')->name('dashboard');
+Route::get('/home/sendmsg/{id}','HomeController@msgForm');
+Route::post('/home/sendmsg/{id}','HomeController@send');
+Route::get('/home/moderate/{id}','HomeController@moderate');
+Route::get('/home/moderate/done/{id}','HomeController@moderateDone');
+
 
 Route::resource('monuments', 'MonumentController'); 
 Route::post('/monuments/addcomment', 'MonumentController@addComment');
+Route::get('/monument/confirm/{id}', 'MonumentController@confirm');
+Route::post('/monument/search', 'MonumentController@search');

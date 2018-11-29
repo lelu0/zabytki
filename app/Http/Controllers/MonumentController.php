@@ -8,6 +8,7 @@ use App\Location;
 use App\Monument;
 use App\Photo;
 use App\Source;
+use App\Moderation;
 use Illuminate\Http\Request;
 
 class MonumentController extends Controller
@@ -25,7 +26,7 @@ class MonumentController extends Controller
      */
     public function index()
     {
-        return view('monuments.index')->with('monuments', Monument::getAll(1));
+        return view('monuments.index')->with('monuments', Monument::getAll(1))->with('categories', Category::all('name', 'id')->pluck('name', 'id'));
     }
 
     /**
@@ -66,7 +67,7 @@ class MonumentController extends Controller
         $monument->name = $request->name;
         $monument->short_description = $request->short_description;
         $monument->description = $request->description;
-        $monument->confirmed = 1;
+        $monument->confirmed = 0;
         $monument->in_area = $request->in_area == 'on' ? 1 : 0;
         $monument->save();
 
@@ -119,7 +120,16 @@ class MonumentController extends Controller
      */
     public function edit($id)
     {
-        //
+        $monument = Monument::find($id);
+        $src = '';
+        foreach($monument->sources as $source){
+            $src .= $source->source;
+            if($source->link)
+            $src .= '|'.$source->link;
+            $src .= ';';
+        }
+        $monument->sources = $src;
+        return view('monuments.edit')->with('monument', $monument)->with('categories', Category::all('name', 'id')->pluck('name', 'id'));
     }
 
     /**
@@ -131,7 +141,59 @@ class MonumentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $this->validate($request, [
+            'name' => 'required|string|max:190',
+            'short_description' => 'required|string|max:190',
+            'description' => 'required|string',
+            'sources' => 'nullable|string',
+            'street' => 'nullable|string|max:190',
+            'city' => 'nullable|string|max:190',
+            'voivodeship' => 'nullable|string|max:190',
+            'postal' => 'nullable|string|max:190',
+            'country' => 'nullable|string|max:190',
+            'latitude' => 'nullable|numeric',
+            'logitude' => 'nullable|numeric',
+            'files[]' => 'image',
+        ]);
+        $monument = Monument::find($id);
+        $monument->user_id = auth()->user()->id;
+        $monument->category_id = $request->category_id;
+        $monument->name = $request->name;
+        $monument->short_description = $request->short_description;
+        $monument->description = $request->description;
+        $monument->in_area = $request->in_area == 'on' ? 1 : 0;
+        $monument->save();
+
+        $location = Location::where(array('monument_id' => $id))->first();
+        $location->fillLocation($request, $monument->id);
+        $location->save();
+
+        $src = Source::where(array('monument_id' => $id))->get();
+        foreach($src as $s){$s->delete();}
+        $string = explode(';', $request->sources);
+        foreach ($string as $source) {
+            $source = explode('|', $source);
+            $sr = new Source();
+            $sr->source = $source[0];
+            if (isset($source[1])) {
+                $sr->link = $source[1];
+            }
+
+            $sr->monument_id = $monument->id;
+            $sr->save();
+        }
+
+        if ($request->file('files')) {
+            foreach ($request->file('files') as $photo) {
+                $photoModel = new Photo();
+                $photoModel->monument_id = $monument->id;
+                $name = 'storage/' . $photo->store('public/monuments');
+                $photoModel->file_name = str_replace('public/', '', $name);
+                $photoModel->save();
+            }
+        }
+
+        return redirect()->action('HomeController@dashboard');
     }
 
     /**
@@ -142,7 +204,11 @@ class MonumentController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $mon = Monument::find($id);
+        $mon->delete();
+        $mods = Moderation::where(array('monument_id' => $id))->get();
+        foreach($mods as $mod) $mod->delete();
+        return redirect()->action('HomeController@dashboard');
     }
 
     public function addComment(Request $request)
@@ -155,5 +221,26 @@ class MonumentController extends Controller
             $comment->save();
         }
         return redirect()->action('MonumentController@show', ['id' => $request->monument_id]);
+    }
+
+    public function confirm($id){
+        $mon = Monument::find($id);
+        $mon->confirmed = 1;
+        $mon->save();
+        return redirect()->action('HomeController@dashboard');
+    }
+
+    public function search(Request $request){
+        $monuments = Monument::where(array('confirmed' => 1));
+        if(isset($request->category_id))
+            $monuments->where(array('category_id' => $request->category_id));
+        if(isset($request->name))
+            $monuments->where('name','like', $request->name);
+        if(isset($request->city)){
+            $monuments->join('locations', 'monuments.id', '=', 'locations.monument_id');
+            $monuments->where('locations.city','like', $request->city);
+        }
+        return view('monuments.index')->with('monuments', $monuments->orderBy('monuments.id','desc')->paginate(10))->with('categories', Category::all('name', 'id')->pluck('name', 'id'));    
+        
     }
 }
