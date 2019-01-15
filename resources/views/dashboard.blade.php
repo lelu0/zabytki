@@ -5,7 +5,14 @@
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
             <div class="panel panel-default">
-                <div class="panel-heading">Panel</div>
+                <div class="panel-heading" id="dash-head">
+                    <ul class="list-inline" id="dash-nav">
+                        <li><a href="/dashboard/1">Moje zabytki</a></li>
+                        <li><a href="/dashboard/2">Wiadomości</a></li>
+                        @if($user->is_admin) <li><a href="/dashboard/3">Moderacja</a></li> @endif
+                        @if($user->is_admin) <li><a href="/dashboard/4">Zatwierdzanie</a></li> @endif
+                    </ul>
+                </div>
 
                 <div class="panel-body">
                     @if (session('status'))
@@ -14,14 +21,10 @@
                     </div>
                     @endif
 
-                    <ul class="nav nav-tabs">
-                        <li class="active"><a data-toggle="tab" href="#menu1">Moje zabytki</a></li>
-                        <li><a data-toggle="tab" href="#menu2">Wiadomości</a></li>
-                        @if($user->is_admin) <li><a data-toggle="tab" href="#menu3">Moderacja</a></li> @endif
-                        @if($user->is_admin) <li><a data-toggle="tab" href="#menu4">Zatwierdzanie</a></li> @endif
-                    </ul>
+
 
                     <div class="tab-content">
+                        @if($mode == 1)
                         <div id="menu1" class="tab-pane fade in active">
                             <h3>Moje zabytki</h3>
                             <div class="table-responsive">
@@ -39,8 +42,9 @@
                                 </table>
                             </div>
                         </div>
-
-                        <div id="menu2" class="tab-pane fade in">
+                        @endif
+                        @if($mode == 2)
+                        <div id="menu2" class="tab-pane fade in active">
                             <h3>Wiadomości</h3>
                             <div class="table-responsive">
 
@@ -67,9 +71,9 @@
                                 </table>
                             </div>
                         </div>
-
-                        @if($user->is_admin)
-                        <div id="menu3" class="tab-pane fade in">
+                        @endif
+                        @if($user->is_admin && $mode == 3)
+                        <div id="menu3" class="tab-pane fade in active">
                             <h3>Zgłoszone do moderacji</h3>
                             <div class="table-responsive">
 
@@ -84,10 +88,12 @@
                                     <tr>
                                         <td><a href='/monuments/{{$mod->monument->id}}'>{{$mod->monument->name}}</a></td>
                                         <td>
-                                                {!! Form::open(['action' => array('MonumentController@destroy',$mod->monument->id), 'method'=>'DELETE']) !!}                                              
-                                               
-                                                {{Form::submit('Usuń zabytek',['class' => 'btn btn-primary'])}}
-                                                {!! Form::close() !!}
+                                            {!! Form::open(['action' =>
+                                            array('MonumentController@destroy',$mod->monument->id),
+                                            'method'=>'DELETE']) !!}
+
+                                            {{Form::submit('Usuń zabytek',['class' => 'btn btn-primary'])}}
+                                            {!! Form::close() !!}
                                         </td>
                                         <td><a href="/home/moderate/done/{{$mod->id}}" class="btn btn-primary" role="button">Sprawdzone</a></td>
                                     </tr>
@@ -98,8 +104,8 @@
                         </div>
                         @endif
 
-                        @if($user->is_admin)
-                        <div id="menu4" class="tab-pane fade in">
+                        @if($user->is_admin && $mode == 4)
+                        <div id="menu4" class="tab-pane fade in active">
                             <h3>Do zatwierdzenia</h3>
                             <div class="table-responsive">
 
@@ -114,10 +120,11 @@
                                     <tr>
                                         <td><a href='/monuments/{{$tc->id}}'>{{$tc->name}}</a></td>
                                         <td>
-                                                {!! Form::open(['action' => array('MonumentController@destroy',$tc->id), 'method'=>'DELETE']) !!}                                              
-                                               
-                                                {{Form::submit('Usuń zabytek',['class' => 'btn btn-primary'])}}
-                                                {!! Form::close() !!}
+                                            {!! Form::open(['action' => array('MonumentController@destroy',$tc->id),
+                                            'method'=>'DELETE']) !!}
+
+                                            {{Form::submit('Usuń zabytek',['class' => 'btn btn-primary'])}}
+                                            {!! Form::close() !!}
                                         </td>
                                         <td><a href="/monument/confirm/{{$tc->id}}" class="btn btn-primary" role="button">Zatwierdż</a></td>
                                     </tr>

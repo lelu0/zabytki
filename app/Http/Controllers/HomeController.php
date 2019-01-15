@@ -12,8 +12,6 @@ class HomeController extends Controller
 {
     /**
      * Create a new controller instance.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -30,19 +28,23 @@ class HomeController extends Controller
         return view('home');
     }
 
-    public function dashboard(){
+    public function dashboard($mode = '1')
+    {
         $user = auth()->user();
-        return view('dashboard')->with('user', $user)->with('moderation', Moderation::where(array('status' => 0)))->with('toConfirm', Monument::where(array('confirmed' => 0)));
+
+        return view('dashboard')->with('mode', $mode)->with('user', $user)->with('moderation', Moderation::where(array('status' => 0)))->with('toConfirm', Monument::where(array('confirmed' => 0)));
     }
 
-    public function msgForm($id){
+    public function msgForm($id)
+    {
         return view('home.msgform')->with('user', User::find($id));
     }
 
-    public function send(Request $request, $id){
+    public function send(Request $request, $id)
+    {
         $this->validate($request, [
             'topic' => 'required|string|max:190',
-            'content' => 'required|string'
+            'content' => 'required|string',
         ]);
 
         $msg = new Message();
@@ -51,21 +53,26 @@ class HomeController extends Controller
         $msg->sender_id = auth()->user()->id;
         $msg->user_id = $id;
         $msg->save();
+
         return redirect()->action('HomeController@dashboard');
     }
 
-    public function moderate($id){
-        $moderation = new Moderation;
+    public function moderate($id)
+    {
+        $moderation = new Moderation();
         $moderation->monument_id = $id;
         $moderation->user_id = auth()->user()->id;
         $moderation->status = 0;
         $moderation->save();
+
         return view('home.thankyou');
     }
 
-    public function moderateDone($id){
+    public function moderateDone($id)
+    {
         $moderation = Moderation::find($id);
         $moderation->delete();
+
         return redirect()->action('HomeController@dashboard');
     }
 }

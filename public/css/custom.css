@@ -1,5 +1,11 @@
-.monument_image{
+.monument_image {
     width: 100%;
 }
 
-   
+#dash-head {
+    padding: 1px 15px;
+}
+
+#dash-nav {
+    margin-top: 10px;
+}

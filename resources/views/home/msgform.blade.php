@@ -15,7 +15,7 @@
                     {{Form::text('topic',null,['class'=>'form-control'])}} <br>
 
                     {{Form::label('content', 'Treść')}} <br>
-                    {{Form::text('content',null,['class'=>'form-control'])}} <br>
+                    {{Form::textArea('content',null,['class'=>'form-control', 'rows' => 4, 'cols' => 40])}} <br>
 
                     {{Form::submit('Wyślij',['class' => 'btn btn-primary'])}}
                     {!! Form::close() !!}
