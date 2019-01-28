@@ -31,7 +31,7 @@
 
                                 <table class="table calendar-table table-hover">
 
-                                    {{$monuments = $user->monuments()->paginate(10)}}
+                                    {{$monuments = $user->monuments()->orderBy('id','DESC')->paginate(10)}}
                                     @foreach ($monuments as $monument)
                                     <tr>
                                         <td><a href="/monuments/{{$monument->id}}">{{$monument->name}}</a></td>

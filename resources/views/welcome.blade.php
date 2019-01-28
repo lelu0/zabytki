@@ -83,7 +83,7 @@
                 </div>
 
                 <div class="links">
-                    <a href="/monuments">Przglądaj katalog</a>
+                    <a href="/monuments">Przeglądaj katalog</a>
                     <a href="/monuments/create">Dodaj nowy</a>
                 </div>
             </div>
